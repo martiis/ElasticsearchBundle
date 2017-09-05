@@ -426,9 +426,13 @@ class Repository
 
     /**
      * @param string $hydration
+     *
+     * @return Repository
      */
     public function setHydration(string $hydration)
     {
         $this->hydration = $hydration;
+
+        return $this;
     }
 }
