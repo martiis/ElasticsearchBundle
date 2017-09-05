@@ -11,6 +11,7 @@
 
 namespace ONGR\ElasticsearchBundle\Service;
 
+use ONGR\ElasticsearchBundle\Result\AbstractResultsIterator;
 use ONGR\ElasticsearchBundle\Result\ArrayIterator;
 use ONGR\ElasticsearchBundle\Result\RawIterator;
 use ONGR\ElasticsearchDSL\Query\FullText\QueryStringQuery;
@@ -23,6 +24,10 @@ use ONGR\ElasticsearchBundle\Result\DocumentIterator;
  */
 class Repository
 {
+    const RESULT_OBJECT = 'object';
+    const RESULT_ARRAY = 'array';
+    const RESULT_RAW = 'raw';
+
     /**
      * @var Manager
      */
@@ -37,6 +42,11 @@ class Repository
      * @var string Elasticsearch type name
      */
     private $type;
+
+    /**
+     * @var string
+     */
+    private $hydration = self::RESULT_OBJECT;
 
     /**
      * Constructor.
@@ -97,7 +107,7 @@ class Repository
      *
      * @param array $ids
      *
-     * @return DocumentIterator The objects.
+     * @return AbstractResultsIterator
      */
     public function findByIds(array $ids)
     {
@@ -130,7 +140,7 @@ class Repository
 
         $return['hits']['total'] = count($return['hits']['hits']);
 
-        return new DocumentIterator($return, $manager);
+        return $this->hydrateResult($return);
     }
 
     /**
@@ -141,7 +151,7 @@ class Repository
      * @param int|null   $limit      Example: 5.
      * @param int|null   $offset     Example: 30.
      *
-     * @return array|DocumentIterator The objects.
+     * @return AbstractResultsIterator
      */
     public function findBy(
         array $criteria,
@@ -168,7 +178,7 @@ class Repository
             $search->addSort(new FieldSort($field, $direction));
         }
 
-        return $this->findDocuments($search);
+        return $this->hydrateResult($this->executeSearch($search));
     }
 
     /**
@@ -383,6 +393,28 @@ class Repository
     }
 
     /**
+     * @param array  $response
+     *
+     * @return AbstractResultsIterator
+     */
+    private function hydrateResult(array $response)
+    {
+        switch ($this->hydration) {
+            case self::RESULT_ARRAY:
+                $iterator = ArrayIterator::class;
+                break;
+            case self::RESULT_RAW:
+                $iterator = RawIterator::class;
+                break;
+            case self::RESULT_OBJECT:
+            default:
+                $iterator = DocumentIterator::class;
+        }
+
+        return new $iterator($response, $this->getManager());
+    }
+
+    /**
      * Returns fully qualified class name.
      *
      * @return string
@@ -390,5 +422,13 @@ class Repository
     public function getClassName()
     {
         return $this->className;
+    }
+
+    /**
+     * @param string $hydration
+     */
+    public function setHydration(string $hydration)
+    {
+        $this->hydration = $hydration;
     }
 }
