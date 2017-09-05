@@ -53,8 +53,9 @@ class Repository
      *
      * @param Manager $manager
      * @param string  $className
+     * @param string  $hydration
      */
-    public function __construct($manager, $className)
+    public function __construct($manager, $className, $hydration = self::RESULT_OBJECT)
     {
         if (!is_string($className)) {
             throw new \InvalidArgumentException('Class name must be a string.');
@@ -69,6 +70,7 @@ class Repository
         $this->manager = $manager;
         $this->className = $className;
         $this->type = $this->resolveType($className);
+        $this->hydration = $hydration;
     }
 
     /**
@@ -431,8 +433,6 @@ class Repository
      */
     public function setHydration(string $hydration)
     {
-        $this->hydration = $hydration;
-
-        return $this;
+        return new Repository($this->manager, $this->className, $hydration);
     }
 }
