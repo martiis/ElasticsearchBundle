@@ -30,6 +30,11 @@
         "psr-4": { "ONGR\\ElasticsearchBundle\\": "" },
         "exclude-from-classmap": ["/Tests/", "/Test/"]
     },
+    "autoload-dev": {
+        "files": [
+            "vendor/symfony/symfony/src/Symfony/Component/VarDumper/Resources/functions/dump.php"
+        ]
+    },
     "minimum-stability": "stable",
     "extra": {
         "branch-alias": {
