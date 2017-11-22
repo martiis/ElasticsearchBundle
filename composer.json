@@ -30,7 +30,7 @@
         "psr-4": { "ONGR\\ElasticsearchBundle\\": "" },
         "exclude-from-classmap": ["/Tests/", "/Test/"]
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "extra": {
         "branch-alias": {
             "dev-master": "5.1-dev"

@@ -479,7 +479,7 @@ class RepositoryTest extends AbstractElasticsearchTestCase
             'failed' => 0,
         ];
 
-        $this->assertEquals($shards, $count['_shards']);
+        $this->assertEquals($shards, array_intersect_key($shards, $count['_shards']));
     }
 
     /**

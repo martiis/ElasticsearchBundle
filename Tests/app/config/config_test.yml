@@ -4,6 +4,8 @@ framework:
     test: ~
 
 ongr_elasticsearch:
+    cache:
+        enabled: true
     analysis:
         filter:
             incremental_filter:

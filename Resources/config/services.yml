@@ -12,13 +12,13 @@ services:
     es.client.index_suffix_finder:
         class: ONGR\ElasticsearchBundle\Service\IndexSuffixFinder
 
-    es.cache_engine:
+    es.default_cache_provider:
         class: Doctrine\Common\Cache\FilesystemCache
         arguments: ["%kernel.cache_dir%/ongr/elasticsearch", ".ongr.data"]
 
     es.annotations.cached_reader:
         class: Doctrine\Common\Annotations\CachedReader
-        arguments: ["@annotations.reader", "@es.cache_engine", "%kernel.debug%"]
+        arguments: ["@annotations.reader", "@es.cache_provider", "%kernel.debug%"]
 
     es.document_finder:
         class: ONGR\ElasticsearchBundle\Mapping\DocumentFinder
@@ -32,7 +32,7 @@ services:
 
     es.metadata_collector:
         class: ONGR\ElasticsearchBundle\Mapping\MetadataCollector
-        arguments: ["@es.document_finder", "@es.document_parser", "@es.cache_engine"]
+        arguments: ["@es.document_finder", "@es.document_parser", "@es.cache_provider"]
         calls:
             - [setEnableCache, ["%es.cache%"]]
 

@@ -14,6 +14,7 @@ namespace ONGR\ElasticsearchBundle\DependencyInjection;
 use Psr\Log\LogLevel;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\DependencyInjection\Parameter;
 
 /**
  * This is the class that validates and merges configuration from app/config files.
@@ -30,11 +31,24 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-            ->booleanNode('cache')
-                ->info(
-                    'Enables cache handler to store metadata and other data to the cache. '.
-                    'By default it is enabled in prod environment and disabled in dev.'
-                )
+            ->arrayNode('cache')
+                ->info('Enables cache handler to store metadata and other data to the cache.')
+                ->addDefaultsIfNotSet()
+                ->validate()
+                    ->ifTrue(function ($config) {
+                        return $config['enabled'] && empty($config['provider']);
+                    })
+                    ->thenInvalid('If cache is enabled please define provider also')
+                ->end()
+                ->children()
+                    ->booleanNode('enabled')
+                        ->defaultFalse()
+                    ->end()
+                    ->scalarNode('provider')
+                        ->cannotBeEmpty()
+                        ->defaultValue('es.default_cache_provider')
+                    ->end()
+                ->end()
             ->end()
             ->booleanNode('profiler')
                 ->info(
